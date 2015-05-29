@@ -1,7 +1,8 @@
 var
+  _ = require('underscore'),
   assert = require('assert'),
   debug = require('debug'),
-  _ = require('underscore'),
+  math = require('mathjs'),
   log = debug('main'),
   flog = debug('filter'),
   rlog = debug('result');
@@ -27,9 +28,14 @@ var
     USER: /^\/api\/users\/\d+$/
   };
 
+function getMode (arr) {
+  return _(arr).chain().groupBy(_.identity).sortBy('length').last().value()[0];
+}
+
 
 module.exports = {
   QUERY: QUERY,
+  getMode: getMode,
   determineQuery: function(path, method) {
     assert(path[0] === '/');
     var log = debug('determine');
@@ -103,13 +109,19 @@ module.exports = {
     if(_.isUndefined(stats)) {
       return;
     }
-    assert(_.has(stats, 'dynos'));
-    var dyno = _(stats.dynos).chain().pairs().sortBy(function(x) {return x[1];}).value().slice(-1)[0];
-    log('dyno', dyno);
+    var times = stats.times;
     return {
-      dyno: dyno
+      dyno: _(stats.dynos).chain()
+        .pairs()
+        .sortBy(function(x) {return x[1];})
+        .last()
+        .value(),
+      mean: math.mean(times),
+      median: math.median(times),
+      mode: getMode(times)
     };
   },
+  
 
   prepareOutput: function(obj) {
     if(_.isUndefined(obj)) {

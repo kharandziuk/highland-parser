@@ -3,6 +3,14 @@ var
   expect = require('chai').expect,
   lib = require('../lib');
 
+describe('mode', function() {
+  it('set', function() {
+    expect(
+      lib.getMode([1, 2, 2, 3])
+    ).to.equal(2);
+  });
+});
+
 describe('collectStats', function() {
   it('diffent queries', function() {
     var actual = _([
