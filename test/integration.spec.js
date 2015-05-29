@@ -6,7 +6,7 @@ describe('As a user I run application from command line', function() {
   describe('the first argument is path to file', function() {
     it("prints the output of correct length", function(done){
       exec(
-        'node app.js test/test.log', {cwd: process.cwd()},
+        'node app.js data-samples/sample.log', {cwd: process.cwd()},
         function (err, stdout, stderr) {
           if(err) {
             throw err;
