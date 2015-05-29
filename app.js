@@ -7,22 +7,8 @@ var
   lib = require('./lib'),
   filePath = process.argv[2];
 
-/*
- * GET /api/users/{user_id}/count_pending_messages
- * GET /api/users/{user_id}/get_messages
- * GET /api/users/{user_id}/get_friends_progress
- * GET /api/users/{user_id}/get_friends_score
- * POST /api/users/{user_id}
- * GET /api/users/{user_id}
-*/
-
-
-
 var lineStream = fs.createReadStream(filePath);
-
-
-//2014-01-09T06:18:04.947113+00:00 heroku[router]: at=info method=POST path=/version_api/files host=services.pocketplaylab.com fwd="81.152.126.250" dyno=web.13 connect=1ms service=35ms status=200 bytes=69
-  H(lineStream).errors(function(err){
+H(lineStream).errors(function(err){
     if(err.code == 'ENOENT') {
       process.stderr.write('No such file ' + err.path);
     } else {
@@ -40,5 +26,6 @@ var lineStream = fs.createReadStream(filePath);
   .reduce([], lib.collectStats)
   .flatten()
   .map(lib.proccessStats)
+  .zip(_.range(6))
   .map(lib.prepareOutput)
   .pipe(process.stdout);

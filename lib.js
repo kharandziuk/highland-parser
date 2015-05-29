@@ -20,6 +20,14 @@ var
     USER_POST: 5,
     OTHER: 6
   },
+  QUERY_PATH = [
+  'GET /api/users/{user_id}/count_pending_messages',
+  'GET /api/users/{user_id}/get_messages',
+  'GET /api/users/{user_id}/get_friends_progress',
+  'GET /api/users/{user_id}/get_friends_score',
+  'GET /api/users/{user_id}',
+  'POST /api/users/{user_id}'
+  ],
   EREGEX = {
     COUNT_PENDING_MESSAGES: /^\/api\/users\/\d+\/count_pending_messages$/,
     GET_FRIENDS_SCORE: /^\/api\/users\/\d+\/get_friends_score$/,
@@ -31,6 +39,12 @@ var
 function getMode (arr) {
   return _(arr).chain().groupBy(_.identity).sortBy('length').last().value()[0];
 }
+
+
+var messageTemplate = _.template(
+    "<%= path %>: calls=<%= calls %> mean=<%= mean %>" +
+    " median=<%= median %> dyno=<%= dyno[0] %>(<%= dyno[1] %>)\n"
+);
 
 
 module.exports = {
@@ -72,6 +86,7 @@ module.exports = {
     return result;
   },
   parseLine: function(line) {
+    debug('parse')(line);
     line = line.slice(TEMPLATE_LENGTH);
     var obj = line.split(' ').reduce(
       function(obj, keyVal) {
@@ -83,7 +98,7 @@ module.exports = {
       },
       {}
     );
-    log(obj);
+    debug('parse')(line, obj);
     assert(obj.connect.indexOf('ms') !== -1);
     assert(obj.service.indexOf('ms') !== -1);
     obj.connect = parseInt(obj.connect.slice(0, -2), 10);
@@ -105,7 +120,6 @@ module.exports = {
   },
 
   proccessStats: function(stats) { 
-    debug('process')(stats);
     if(_.isUndefined(stats)) {
       return;
     }
@@ -118,15 +132,22 @@ module.exports = {
         .value(),
       mean: math.mean(times),
       median: math.median(times),
-      mode: getMode(times)
+      mode: getMode(times),
+      calls: times.length,
     };
   },
-  
 
-  prepareOutput: function(obj) {
+  prepareOutput: function(x) {
+    debug('prepare')(arguments);
+    var obj = x[0], num =x[1];
     if(_.isUndefined(obj)) {
-      return 'nobody call it\n';
+      return QUERY_PATH[num] + ' nobody call it\n';
     }
-    return 'dyno: ' +  obj.dyno[0] + 'called ' + obj.dyno[1] + ' times\n';
+    return messageTemplate(
+      _.extend(
+        obj,
+        {path: QUERY_PATH[num] }
+      )
+    );
   },
 };
