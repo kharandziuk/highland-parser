@@ -84,24 +84,20 @@ module.exports = {
     obj.service = parseInt(obj.service.slice(0, -2), 10);
     return obj;
   },
-  prepareOutput: function(obj) {
-    if(_.isUndefined(obj)) {
-      return 'nobody call it\n';
-    }
-    return 'dyno: ' +  obj.dyno[0] + 'called ' + obj.dyno[1] + ' times\n';
-  },
+
   collectStats: function(acc, next) {
     var log = debug('collect');
-    var obj = acc[next.query] || {time: 0,  count: 0, dynos: {}};
+    log(acc, next);
+    var obj = acc[next.query] || {times: [], dynos: {}};
     log(acc, next, obj);
     acc[next.query] = obj;
-    obj.time = next.connect + next.service;
-    obj.count++;
+    obj.times.push(next.connect + next.service);
     obj.dynos[next.dyno] = (obj.dynos[next.dyno] || 0);
     obj.dynos[next.dyno]++;
     log(acc, next);
     return acc;
   },
+
   proccessStats: function(stats) { 
     debug('process')(stats);
     if(_.isUndefined(stats)) {
@@ -113,5 +109,12 @@ module.exports = {
     return {
       dyno: dyno
     };
+  },
+
+  prepareOutput: function(obj) {
+    if(_.isUndefined(obj)) {
+      return 'nobody call it\n';
+    }
+    return 'dyno: ' +  obj.dyno[0] + 'called ' + obj.dyno[1] + ' times\n';
   },
 };

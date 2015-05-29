@@ -1,6 +1,32 @@
 var
+  _ = require('underscore'),
   expect = require('chai').expect,
   lib = require('../lib');
+
+describe('collectStats', function() {
+  it('diffent queries', function() {
+    var actual = _([
+      { query: 0, connect: 10, service: 15, dyno: 'kapa'},
+      { query: 1, connect: 10, service: 15, dyno: 'kapa'}
+    ]).reduce(lib.collectStats, []);
+    expect(actual).to.deep.equal([
+      { times: [25], dynos: {kapa: 1}},
+      { times: [25], dynos: {kapa: 1}}
+    ]);
+  });
+
+  it('same query few times', function() {
+    var actual = _([
+      { query: 0, connect: 10, service: 15, dyno: 'kapa'},
+      { query: 0, connect: 10, service: 0, dyno: 'kapa'}
+    ]).reduce(lib.collectStats, []);
+    expect(
+      [ { times: [25, 10], dynos: {kapa: 2}} ]
+    ).to.deep.equal(
+      [ { times: [25, 10], dynos: {kapa: 2}} ]
+    );
+  });
+});
 
 describe('determineQuery', function() {
   describe('can determine query', function(){
