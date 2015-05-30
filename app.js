@@ -14,7 +14,7 @@ H(lineStream).errors(function(err){
     } else {
     throw err;
     }
-  }).split()
+  }).split().filter(function(x) { return x.length; })
   .map(lib.parseLine)
   .map(function(obj) {
     obj.query = lib.determineQuery(obj.path, obj.method);
@@ -24,6 +24,12 @@ H(lineStream).errors(function(err){
     return x.query !== lib.QUERY.OTHER;
   })
   .reduce([], lib.collectStats)
+  .map(function(arr) {
+    _(_.range(6)).each(function(el) {
+      arr[el] = arr[el] || undefined;
+    });
+    return arr;
+  }) // HACK
   .flatten()
   .map(lib.proccessStats)
   .zip(_.range(6))

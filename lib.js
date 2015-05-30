@@ -22,9 +22,9 @@ var
   },
   QUERY_PATH = [
   'GET /api/users/{user_id}/count_pending_messages',
+  'GET /api/users/{user_id}/get_friends_score',
   'GET /api/users/{user_id}/get_messages',
   'GET /api/users/{user_id}/get_friends_progress',
-  'GET /api/users/{user_id}/get_friends_score',
   'GET /api/users/{user_id}',
   'POST /api/users/{user_id}'
   ],
