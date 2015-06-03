@@ -11,6 +11,7 @@ describe('As a user I run application from command line', function() {
           if(err) {
             throw err;
           }
+          console.log(stdout.toString(), 'dfdg');
           expect(stdout.toString().split('\n').length).to.equal(7, stdout);
           done();
         }

@@ -1,4 +1,5 @@
 var
+  H = require('highland'),
   _ = require('underscore'),
   assert = require('assert'),
   debug = require('debug'),
@@ -150,4 +151,27 @@ module.exports = {
       )
     );
   },
+  parse: function(lineStream, lib) {
+    var result = lineStream.filter(function(x) { return x.length; })
+      .map(lib.parseLine)
+      .map(function(obj) {
+        obj.query = lib.determineQuery(obj.path, obj.method);
+        return obj;
+      })
+      .filter(function(x) {
+        return x.query !== lib.QUERY.OTHER;
+      })
+      .reduce([], lib.collectStats)
+      .map(function(arr) {
+        _(_.range(6)).each(function(el) {
+          arr[el] = arr[el] || undefined;
+        });
+        return arr;
+      }) // HACK
+      .flatten()
+      .map(lib.proccessStats)
+      .zip(_.range(6))
+      .map(lib.prepareOutput);
+    return result;
+  }
 };
