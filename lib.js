@@ -152,7 +152,7 @@ module.exports = {
     );
   },
   parse: function(lineStream, lib) {
-    var result = lineStream.filter(function(x) { return x.length; })
+    return lineStream.filter(function(x) { return x.length; })
       .map(lib.parseLine)
       .map(function(obj) {
         obj.query = lib.determineQuery(obj.path, obj.method);
@@ -172,6 +172,5 @@ module.exports = {
       .map(lib.proccessStats)
       .zip(_.range(6))
       .map(lib.prepareOutput);
-    return result;
   }
 };
